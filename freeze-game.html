@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Hormone Imbalance Quiz Game</title>
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  text-align: center;
+  background: #e8f7ff;
+  margin: 0;
+  padding: 0;
+}
+
+h1 {
+  margin-top: 20px;
+}
+
+#intro-screen, #game-over {
+  background: rgba(255, 255, 255, 0.95);
+  border: 3px solid #7dc9ff;
+  padding: 20px;
+  width: 60%;
+  margin: 40px auto;
+  border-radius: 10px;
+}
+
+button {
+  padding: 12px 22px;
+  background: #7dc9ff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+}
+button:hover {
+  background: #5bb6ee;
+}
+
+#game-area {
+  position: relative;
+  width: 80%;
+  height: 500px;
+  margin: 20px auto;
+  background: white;
+  border: 3px solid #7dc9ff;
+  overflow: hidden;
+  border-radius: 10px;
+}
+
+.statement {
+  position: absolute;
+  padding: 10px;
+  background: #ffffff;
+  border: 2px solid #7dc9ff;
+  border-radius: 8px;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.statement.frozen {
+  background: #a3e4ff;
+  transform: scale(1.1);
+}
+
+.hidden {
+  display: none;
+}
+</style>
+</head>
+
+<body>
+
+<h1>❄️ Hormone Imbalance Quiz Game ❄️</h1>
+
+<!-- INTRO SCREEN -->
+<div id="intro-screen">
+  <h2>Welcome!</h2>
+  <p>You may be asking yourself, what is a hormone imbalance? Why should I care?</p>
+  <p>Hormones affect our mood, energy, growth, metabolism, and almost everything our bodies do!</p>
+  <p>When there is an imbalance, it means the body has too much or too little of a hormone — and that can affect how we feel and function.</p>
+  <p>Let’s learn together by playing this mini Game!</p>
+  <button onclick="startGame()">Start Game</button>
+</div>
+
+<!-- GAME AREA -->
+<div id="game-area" class="hidden"></div>
+
+<!-- GAME OVER SCREEN -->
+<div id="game-over" class="hidden">
+  <h2>🎉 You Got All The Answers Right! 🎉</h2>
+  <p>You completed the hormone imbalance introduction quiz!</p>
+  <button onclick="restartGame()">Play Again</button>
+</div>
+
+<script>
+/* QUIZ STATEMENTS (Your script turned into T/F) */
+const statements = [
+  { text: "Hormones influence our mood.", correct: true },
+  { text: "Hormones affect how we process food.", correct: true },
+  { text: "Hormones only affect one or two parts of the body.", correct: false },
+  { text: "Hormones help control our energy levels.", correct: true },
+  { text: "Hormones do not affect how we grow.", correct: false },
+  { text: "Almost every process in our body is influenced by hormones.", correct: true },
+  { text: "A hormone imbalance means too much or too little of a hormone.", correct: true },
+  { text: "Hormone imbalances have no effect on the body.", correct: false },
+  { text: "An imbalance can cause changes in how the body functions.", correct: true },
+  { text: "You should not worry about hormones because they do nothing important.", correct: false },
+  { text: "Hormones play a huge role in our daily functioning.", correct: true },
+  { text: "Hormones and their balance are important for health.", correct: true },
+  { text: "Learning about hormones helps us understand our bodies better.", correct: true }
+];
+
+let correctAnswersNeeded = statements.filter(s => s.correct).length;
+let correctFrozenCount = 0;
+
+let gameRunning = false;
+let fallSpeed = 2;
+
+
+/* START GAME */
+function startGame() {
+  document.getElementById("intro-screen").classList.add("hidden");
+  document.getElementById("game-area").classList.remove("hidden");
+  gameRunning = true;
+  spawnLoop();
+}
+
+/* END GAME when all TRUE statements are clicked */
+function endGame() {
+  gameRunning = false;
+  document.getElementById("game-area").classList.add("hidden");
+  document.getElementById("game-over").classList.remove("hidden");
+}
+
+/* RESTART */
+function restartGame() {
+  location.reload();
+}
+
+/* SPAWN STATEMENTS */
+function spawnStatement() {
+  if (!gameRunning) return;
+
+  const random = statements[Math.floor(Math.random() * statements.length)];
+
+  const div = document.createElement("div");
+  div.classList.add("statement");
+  div.textContent = random.text;
+
+  div.style.left = Math.random() * 70 + "%";
+  div.style.top = "-40px";
+
+  div.onclick = () => {
+    if (random.correct) {
+      if (!div.classList.contains("frozen")) {
+        div.classList.add("frozen");
+        correctFrozenCount++;
+
+        if (correctFrozenCount === correctAnswersNeeded) {
+          endGame();
+        }
+      }
+    } else {
+      div.style.border = "2px solid red";
+    }
+
+    div.style.pointerEvents = "none";
+  };
+
+  document.getElementById("game-area").appendChild(div);
+
+  let fall = setInterval(() => {
+    if (!gameRunning) {
+      clearInterval(fall);
+      return;
+    }
+
+    let top = parseInt(div.style.top);
+    div.style.top = top + fallSpeed + "px";
+
+    if (top > 500) {
+      div.remove();
+      clearInterval(fall);
+    }
+  }, 30);
+}
+
+/* SPAWN LOOP */
+function spawnLoop() {
+  if (!gameRunning) return;
+  spawnStatement();
+  setTimeout(spawnLoop, 1300);
+}
+</script>
+
+</body>
+</html>
